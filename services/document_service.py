@@ -5,7 +5,7 @@ from bson import ObjectId
 import uuid
 
 from models import Document, PlaceHolder
-from repository import  document_repo_ins
+from repository import document_repo_ins
 from app.openai import OpenAIParser
 from config import config
 
@@ -16,7 +16,7 @@ class DocumentService:
         self.upload_dir = "uploads"
         os.makedirs(self.upload_dir, exist_ok=True)
         self.openai_handler = OpenAIParser()
-        self.assistant_id = config.OPENAI_PARSER_ASSISTANT_ID  
+        self.assistant_id = config.OPENAI_PARSER_ASSISTANT_ID
 
     async def validate_file_type(self, file: UploadFile) -> None:
         """Validate that the uploaded file is a .docx file"""
@@ -59,12 +59,27 @@ class DocumentService:
                     )
 
             return placeholders
+        except ValueError as e:
+            error_message = str(e)
+            if "no placeholders" in error_message.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=error_message,
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=error_message,
+                )
         except Exception as e:
             print(f"Error extracting placeholders: {e}")
-            return []
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error processing document: {str(e)}. Please try uploading the file again.",
+            )
 
     async def upload_and_process_document(self, file: UploadFile) -> Document:
-        
+
         await self.validate_file_type(file)
 
         original_filename = file.filename
@@ -81,8 +96,6 @@ class DocumentService:
         document.id = document_id
 
         return document
-
-   
 
 
 # Create a singleton instance
