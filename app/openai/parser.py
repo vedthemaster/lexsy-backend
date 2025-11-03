@@ -22,10 +22,10 @@ class OpenAIParser:
         return file.id
     
     async def find_placeholders(self, thread_id: str, assistant_id: str, file_path: str):
-        # Upload the file
+        
         file_id = await self._upload_file(file_path)
         
-        # Add message with file attachment to thread
+        
         await self.client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
@@ -33,7 +33,7 @@ class OpenAIParser:
             attachments=[{"file_id": file_id, "tools": [{"type": "file_search"}]}]
         )
         
-        # Run the assistant with structured output
+        
         run = await self.client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
             assistant_id=assistant_id,

@@ -16,7 +16,7 @@ class DocumentService:
         self.upload_dir = "uploads"
         os.makedirs(self.upload_dir, exist_ok=True)
         self.openai_handler = OpenAIParser()
-        self.assistant_id = config.OPENAI_PARSER_ASSISTANT_ID  # Add this to your config
+        self.assistant_id = config.OPENAI_PARSER_ASSISTANT_ID  
 
     async def validate_file_type(self, file: UploadFile) -> None:
         """Validate that the uploaded file is a .docx file"""
@@ -82,21 +82,7 @@ class DocumentService:
 
         return document
 
-    # async def get_all_documents(self) -> list[Document]:
-    #     """Get all documents from the database"""
-    #     return await document_repository.get_all()
-
-    # async def get_document_by_id(self, document_id: str) -> Optional[Document]:
-    #     """Get a single document by ID"""
-    #     return await document_repository.get_by_id(document_id)
-
-    # async def update_document(self, document_id: str, document: Document) -> bool:
-    #     """Update a document"""
-    #     return await document_repository.update(document_id, document)
-
-    # async def delete_document(self, document_id: str) -> bool:
-    #     """Delete a document"""
-    #     return await document_repository.delete(document_id)
+   
 
 
 # Create a singleton instance

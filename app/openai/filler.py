@@ -100,18 +100,15 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
             if run.status == "completed":
                 break
             elif run.status == "requires_action":
-                # Handle function calls
                 tool_calls = run.required_action.submit_tool_outputs.tool_calls
                 tool_outputs = []
 
                 for tool_call in tool_calls:
                     if tool_call.function.name == "save_placeholder":
-                        # Parse function arguments
                         arguments = json.loads(tool_call.function.arguments)
                         placeholder_name = arguments["placeholder_name"]
                         value = arguments["value"]
 
-                        # Save placeholder value
                         success = await self._save_placeholder_value(
                             placeholder_name, value
                         )
@@ -126,7 +123,6 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
                             {"tool_call_id": tool_call.id, "output": result_message}
                         )
 
-                # Submit tool outputs
                 run = await self.client.beta.threads.runs.submit_tool_outputs(
                     thread_id=thread_id, run_id=run_id, tool_outputs=tool_outputs
                 )
@@ -177,12 +173,11 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
         messages = await self.client.beta.threads.messages.list(
             thread_id=thread_id,
             order="asc",
-            limit=100,  # Increased limit to fetch more messages
+            limit=100,
         )
 
         conversation = []
         for i, message in enumerate(messages.data):
-            # Skip the first message (index 0) which contains placeholder data
             if i == 0:
                 continue
 

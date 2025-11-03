@@ -75,7 +75,6 @@ class DocumentGeneratorService:
         """
         replacements_count = 0
         
-        # Count how many times each regex pattern appears
         regex_count = {}
         for placeholder in placeholders:
             if placeholder.value:
@@ -89,14 +88,11 @@ class DocumentGeneratorService:
             regex_pattern = placeholder.regex
             replacement_value = str(placeholder.value)
             
-            # Determine if this regex is unique or duplicate
             is_duplicate = regex_count[regex_pattern] > 1
             
             if is_duplicate:
-                # Duplicate regex: Replace only FIRST occurrence
                 replaced = False
                 
-                # Try paragraphs first
                 if not replaced:
                     for paragraph in doc.paragraphs:
                         if replaced:
@@ -120,7 +116,6 @@ class DocumentGeneratorService:
                                 print(f"Regex error for pattern '{regex_pattern}': {e}")
                                 continue
                 
-                # Try tables if not found in paragraphs
                 if not replaced:
                     for table in doc.tables:
                         if replaced:
@@ -152,8 +147,6 @@ class DocumentGeneratorService:
                                             print(f"Regex error for pattern '{regex_pattern}': {e}")
                                             continue
             else:
-                # Unique regex: Replace ALL occurrences
-                # Replace in all paragraphs
                 for paragraph in doc.paragraphs:
                     if paragraph.text:
                         original_text = paragraph.text
@@ -171,7 +164,6 @@ class DocumentGeneratorService:
                             print(f"Regex error for pattern '{regex_pattern}': {e}")
                             continue
                 
-                # Replace in all tables
                 for table in doc.tables:
                     for row in table.rows:
                         for cell in row.cells:
@@ -180,7 +172,6 @@ class DocumentGeneratorService:
                                     original_text = paragraph.text
                                     try:
                                         if re.search(regex_pattern, original_text):
-                                            # Replace ALL occurrences
                                             new_text = re.sub(
                                                 regex_pattern,
                                                 replacement_value,
@@ -198,8 +189,6 @@ class DocumentGeneratorService:
         """
         Update paragraph text while preserving basic structure
         """
-        # Clear existing runs and add new text
-        # This preserves the paragraph but loses run-level formatting
         for run in paragraph.runs:
             run.text = ""
 
