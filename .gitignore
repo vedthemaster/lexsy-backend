@@ -1,4 +1,6 @@
 __pycache__
 config.yaml
 assets
-
+poc.py
+uploads
+config.yml

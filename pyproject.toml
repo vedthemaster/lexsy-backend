@@ -12,6 +12,9 @@ mongo = "^0.2.0"
 uvicorn = "^0.38.0"
 pydantic-settings = "^2.11.0"
 openai = "^2.6.1"
+pyyaml = "^6.0.3"
+motor = "^3.7.1"
+python-multipart = "^0.0.20"
 
 
 [build-system]
