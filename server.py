@@ -24,7 +24,7 @@ def make_middleware() -> List[Middleware]:
     return middleware
 
 def create_app() -> FastAPI:
-    app_ = FastAPI(title="Lexy Backend", middleware=make_middleware())
+    app_ = FastAPI(title="Lexsy Backend", middleware=make_middleware())
     init_routers(app_)
     return app_
 

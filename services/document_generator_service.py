@@ -68,11 +68,19 @@ class DocumentGeneratorService:
     ) -> int:
         """
         Replace placeholders in the document using simple regex patterns.
-        Each placeholder is replaced only ONCE - the first occurrence found.
-        Once a replacement is made, we move to the next placeholder.
+        Logic:
+        - If regex is UNIQUE (used by only one placeholder): Replace ALL occurrences
+        - If regex is DUPLICATE (used by multiple placeholders): Replace only FIRST occurrence per placeholder
         Returns the number of replacements made.
         """
         replacements_count = 0
+        
+        # Count how many times each regex pattern appears
+        regex_count = {}
+        for placeholder in placeholders:
+            if placeholder.value:
+                regex = placeholder.regex
+                regex_count[regex] = regex_count.get(regex, 0) + 1
 
         for placeholder in placeholders:
             if not placeholder.value:
@@ -80,78 +88,108 @@ class DocumentGeneratorService:
 
             regex_pattern = placeholder.regex
             replacement_value = str(placeholder.value)
-            replaced = False  # Track if we've replaced this placeholder
-
-            # Try to replace in paragraphs first
-            if not replaced:
+            
+            # Determine if this regex is unique or duplicate
+            is_duplicate = regex_count[regex_pattern] > 1
+            
+            if is_duplicate:
+                # Duplicate regex: Replace only FIRST occurrence
+                replaced = False
+                
+                # Try paragraphs first
+                if not replaced:
+                    for paragraph in doc.paragraphs:
+                        if replaced:
+                            break
+                        
+                        if paragraph.text:
+                            original_text = paragraph.text
+                            try:
+                                if re.search(regex_pattern, original_text):
+                                    new_text = re.sub(
+                                        regex_pattern,
+                                        replacement_value,
+                                        original_text,
+                                        count=1,
+                                    )
+                                    self._update_paragraph_text(paragraph, new_text)
+                                    replacements_count += 1
+                                    replaced = True
+                                    break
+                            except re.error as e:
+                                print(f"Regex error for pattern '{regex_pattern}': {e}")
+                                continue
+                
+                # Try tables if not found in paragraphs
+                if not replaced:
+                    for table in doc.tables:
+                        if replaced:
+                            break
+                        for row in table.rows:
+                            if replaced:
+                                break
+                            for cell in row.cells:
+                                if replaced:
+                                    break
+                                for paragraph in cell.paragraphs:
+                                    if replaced:
+                                        break
+                                    if paragraph.text:
+                                        original_text = paragraph.text
+                                        try:
+                                            if re.search(regex_pattern, original_text):
+                                                new_text = re.sub(
+                                                    regex_pattern,
+                                                    replacement_value,
+                                                    original_text,
+                                                    count=1,
+                                                )
+                                                self._update_paragraph_text(paragraph, new_text)
+                                                replacements_count += 1
+                                                replaced = True
+                                                break
+                                        except re.error as e:
+                                            print(f"Regex error for pattern '{regex_pattern}': {e}")
+                                            continue
+            else:
+                # Unique regex: Replace ALL occurrences
+                # Replace in all paragraphs
                 for paragraph in doc.paragraphs:
-                    if replaced:
-                        break
-
                     if paragraph.text:
                         original_text = paragraph.text
                         try:
-                            # Check if pattern exists in this paragraph
                             if re.search(regex_pattern, original_text):
-                                # Replace only the FIRST occurrence
+                                # Replace ALL occurrences (count=0 or omit count)
                                 new_text = re.sub(
                                     regex_pattern,
                                     replacement_value,
                                     original_text,
-                                    count=1,
                                 )
-
-                                # Update paragraph and mark as replaced
                                 self._update_paragraph_text(paragraph, new_text)
                                 replacements_count += 1
-                                replaced = True
-                                break
                         except re.error as e:
                             print(f"Regex error for pattern '{regex_pattern}': {e}")
                             continue
-
-            # If not found in paragraphs, try tables
-            if not replaced:
+                
+                # Replace in all tables
                 for table in doc.tables:
-                    if replaced:
-                        break
-
                     for row in table.rows:
-                        if replaced:
-                            break
-
                         for cell in row.cells:
-                            if replaced:
-                                break
-
                             for paragraph in cell.paragraphs:
-                                if replaced:
-                                    break
-
                                 if paragraph.text:
                                     original_text = paragraph.text
                                     try:
-                                        # Check if pattern exists in this paragraph
                                         if re.search(regex_pattern, original_text):
-                                            # Replace only the FIRST occurrence
+                                            # Replace ALL occurrences
                                             new_text = re.sub(
                                                 regex_pattern,
                                                 replacement_value,
                                                 original_text,
-                                                count=1,
                                             )
-
-                                            # Update paragraph and mark as replaced
-                                            self._update_paragraph_text(
-                                                paragraph, new_text
-                                            )
+                                            self._update_paragraph_text(paragraph, new_text)
                                             replacements_count += 1
-                                            replaced = True
-                                            break
                                     except re.error as e:
-                                        print(
-                                            f"Regex error for pattern '{regex_pattern}': {e}"
-                                        )
+                                        print(f"Regex error for pattern '{regex_pattern}': {e}")
                                         continue
 
         return replacements_count
