@@ -173,7 +173,7 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
             return False
 
     async def get_conversation_history(self, thread_id: str):
-        """Get full conversation history as JSON"""
+        """Get full conversation history as JSON, excluding the first system message"""
         messages = await self.client.beta.threads.messages.list(
             thread_id=thread_id,
             order="asc",
@@ -181,7 +181,11 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
         )
 
         conversation = []
-        for message in messages.data:
+        for i, message in enumerate(messages.data):
+            # Skip the first message (index 0) which contains placeholder data
+            if i == 0:
+                continue
+
             conversation.append(
                 {
                     "role": message.role,
