@@ -20,20 +20,16 @@ class OpenAIFiller:
         Create thread, upload document, send placeholder data, and start conversation
         Returns thread_id and initial conversation
         """
-        # Get document from database
         document = await document_repo_ins.get_document_by_id(self.document_id)
 
         if not document:
             raise ValueError(f"Document with id {self.document_id} not found")
 
-        # Create thread
         thread = await self.client.beta.threads.create()
         thread_id = thread.id
 
-        # Upload document file
         file_id = await self._upload_file(document.path)
 
-        # Prepare placeholder data
         placeholders_data = []
         for ph in document.placeholders:
             placeholders_data.append(
@@ -45,7 +41,6 @@ class OpenAIFiller:
                 }
             )
 
-        # Create first message with document and placeholder data
         initial_message = f"""Document Title: {document.title}
 
 Placeholders to fill:
@@ -53,7 +48,6 @@ Placeholders to fill:
 
 Please start by asking the user for the value of the FIRST placeholder. Ask one placeholder at a time in a friendly, conversational manner. After the user provides a value, use the save_placeholder function to save it, then move to the next placeholder."""
 
-        # Add message to thread
         await self.client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
@@ -61,15 +55,12 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
             attachments=[{"file_id": file_id, "tools": [{"type": "file_search"}]}],
         )
 
-        # Run assistant to get first question
         run = await self.client.beta.threads.runs.create(
             thread_id=thread_id, assistant_id=self.assistant_id
         )
 
-        # Wait for completion
         await self._wait_for_run_completion(thread_id, run.id)
 
-        # Get conversation history
         conversation = await self.get_conversation_history(thread_id)
 
         return {
@@ -83,23 +74,18 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
         Process user's response, save placeholder if needed, and continue conversation
         Returns updated conversation history
         """
-        # Add user message to thread
         await self.client.beta.threads.messages.create(
             thread_id=thread_id, role="user", content=user_message
         )
 
-        # Run assistant with function calling
         run = await self.client.beta.threads.runs.create(
             thread_id=thread_id, assistant_id=self.assistant_id
         )
 
-        # Wait for completion and handle function calls
         await self._wait_for_run_completion(thread_id, run.id)
 
-        # Get updated conversation history
         conversation = await self.get_conversation_history(thread_id)
 
-        # Check if all placeholders are filled
         all_filled = await self._check_all_filled()
 
         return {"conversation": conversation, "all_filled": all_filled}
@@ -152,19 +138,16 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
     async def _save_placeholder_value(self, placeholder_name: str, value: str) -> bool:
         """Save placeholder value to database"""
         try:
-            # Get document
             document = await document_repo_ins.get_document_by_id(self.document_id)
 
             if not document:
                 return False
 
-            # Find and update placeholder
             for placeholder in document.placeholders:
                 if placeholder.name == placeholder_name:
                     placeholder.value = value
                     break
 
-            # Update document in database
             await document_repo_ins.update_document(self.document_id, document)
 
             return True
@@ -180,7 +163,6 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
             if not document:
                 return False
 
-            # Check if all placeholders have values
             for placeholder in document.placeholders:
                 if not placeholder.value:
                     return False
