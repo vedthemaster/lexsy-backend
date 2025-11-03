@@ -51,6 +51,7 @@ class OpenAIParser:
                 function_name = tool_call.function.name
                 tool_id = tool_call.id
                 print(function_name, tool_id)
+                print(json.loads(tool_call.function.arguments))
                 
             if function_name == "extract_placeholders":
                 if not placeholders:

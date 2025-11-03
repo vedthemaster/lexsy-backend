@@ -28,7 +28,7 @@ class OpenAIFiller:
         thread = await self.client.beta.threads.create()
         thread_id = thread.id
 
-        file_id = await self._upload_file(document.path)
+        # file_id = await self._upload_file(document.path)
 
         placeholders_data = []
         for ph in document.placeholders:
@@ -52,8 +52,8 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
             thread_id=thread_id,
             role="user",
             content=initial_message,
-            attachments=[{"file_id": file_id, "tools": [{"type": "file_search"}]}],
         )
+            # attachments=[{"file_id": file_id, "tools": [{"type": "file_search"}]}],
 
         run = await self.client.beta.threads.runs.create(
             thread_id=thread_id, assistant_id=self.assistant_id
@@ -175,7 +175,9 @@ Please start by asking the user for the value of the FIRST placeholder. Ask one 
     async def get_conversation_history(self, thread_id: str):
         """Get full conversation history as JSON"""
         messages = await self.client.beta.threads.messages.list(
-            thread_id=thread_id, order="asc"
+            thread_id=thread_id, 
+            order="asc",
+            limit=100  # Increased limit to fetch more messages
         )
 
         conversation = []

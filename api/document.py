@@ -30,7 +30,7 @@ class GenerateDocumentRequest(BaseModel):
 @document_router.post("/upload", status_code=status.HTTP_201_CREATED)
 async def upload_document(file: UploadFile = File(...)):
     document = await document_service.upload_and_process_document(file)
-    return {"message": "Document uploaded successfully", "document": document.title}
+    return {"message": "Document uploaded successfully", "document_id": str(document.id), "title": document.title}
 
 
 @document_router.post("/generate")
@@ -51,6 +51,7 @@ async def generate_document(request: GenerateDocumentRequest):
     except HTTPException:
         raise
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generating document: {str(e)}",
