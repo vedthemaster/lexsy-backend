@@ -18,7 +18,8 @@ class Config(BaseConfig):
 
     OPENAI_API_KEY: str = set_yaml["openai"]["api_key"]
     OPENAI_MODEL: str = set_yaml["openai"]["model"]
-    OPENAI_ASSISTANT_ID: str = set_yaml["openai"]["assistant_id"]
+    OPENAI_PARSER_ASSISTANT_ID: str = set_yaml["openai"]["parser_assistant_id"]
+    OPENAI_FILLER_ASSISTANT_ID: str = set_yaml["openai"]["filler_assistant_id"]
 
 
 config: Config = Config()

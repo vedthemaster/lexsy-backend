@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from config import config 
 
-class OpenAIHandler:
+class OpenAIParser:
     
     def __init__(self):
         self.client = AsyncOpenAI(api_key=config.OPENAI_API_KEY)
