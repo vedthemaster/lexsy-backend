@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings
 import yaml
 
@@ -7,7 +9,7 @@ class BaseConfig(BaseSettings):
         case_sensitive = True
 
 
-with open("config\config.yml", "r", encoding="utf-8") as f:
+with open(os.getcwd() + "/config/config.yml", encoding='utf-8') as f:
     set_yaml = yaml.safe_load(f)
 
 
