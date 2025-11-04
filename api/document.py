@@ -22,9 +22,9 @@ class GenerateDocumentRequest(BaseModel):
     document_id: str
 
 
-# @document_router.get("/", status_code=200)
-# async def get_documents():
-#     return
+@document_router.get("/", status_code=200)
+async def health():
+    return {"message": "API is running"}
 
 
 @document_router.post("/upload", status_code=status.HTTP_201_CREATED)
