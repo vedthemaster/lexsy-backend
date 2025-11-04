@@ -31,7 +31,7 @@ class OpenAIParser:
         await self.client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
-            content="find the placeholders in the document",
+            content="Find the placholders that needs to be filled by user in the attached document. Generally placeholders are in the format of [COMPANY NAME], [DATE]. Extract all such placeholders along with their names(context), placeholder itself and regex of that placeholder. ",
             attachments=[{"file_id": file_id, "tools": [{"type": "file_search"}]}],
         )
 
