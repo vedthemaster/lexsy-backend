@@ -4,9 +4,9 @@ from fastapi import UploadFile, HTTPException, status
 from bson import ObjectId
 import uuid
 
-from models import Document, PlaceHolder
-from repository import document_repo_ins
-from app.openai import OpenAIParser
+from ..models import Document, PlaceHolder
+from ..repository import document_repo_ins
+from ..app.openai import OpenAIParser
 from config import config
 
 

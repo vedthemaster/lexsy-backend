@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from services.placeholder_service import placeholder_service
+from .services.placeholder_service import placeholder_service
 
 placeholder_router = APIRouter()
 

@@ -1,4 +1,4 @@
-from app.openai import OpenAIFiller
+from ..app.openai import OpenAIFiller
 
 
 class PlaceholderService:

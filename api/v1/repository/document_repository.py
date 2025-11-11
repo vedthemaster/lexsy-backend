@@ -1,7 +1,7 @@
 from bson import ObjectId
-from repository.database import db
+from database import db
 
-from models import Document
+from ..models import Document
 
 
 class DocumentRepository:

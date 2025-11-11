@@ -4,7 +4,7 @@ import uuid
 from docx import Document as DocxDocument
 from fastapi import HTTPException, status
 
-from repository.document_repository import document_repo_ins
+from ..repository import document_repo_ins
 
 
 class DocumentGeneratorService:
@@ -74,7 +74,7 @@ class DocumentGeneratorService:
         Returns the number of replacements made.
         """
         replacements_count = 0
-        
+
         regex_count = {}
         for placeholder in placeholders:
             if placeholder.value:
@@ -87,17 +87,17 @@ class DocumentGeneratorService:
 
             regex_pattern = placeholder.regex
             replacement_value = str(placeholder.value)
-            
+
             is_duplicate = regex_count[regex_pattern] > 1
-            
+
             if is_duplicate:
                 replaced = False
-                
+
                 if not replaced:
                     for paragraph in doc.paragraphs:
                         if replaced:
                             break
-                        
+
                         if paragraph.text:
                             original_text = paragraph.text
                             try:
@@ -115,7 +115,7 @@ class DocumentGeneratorService:
                             except re.error as e:
                                 print(f"Regex error for pattern '{regex_pattern}': {e}")
                                 continue
-                
+
                 if not replaced:
                     for table in doc.tables:
                         if replaced:
@@ -139,12 +139,16 @@ class DocumentGeneratorService:
                                                     original_text,
                                                     count=1,
                                                 )
-                                                self._update_paragraph_text(paragraph, new_text)
+                                                self._update_paragraph_text(
+                                                    paragraph, new_text
+                                                )
                                                 replacements_count += 1
                                                 replaced = True
                                                 break
                                         except re.error as e:
-                                            print(f"Regex error for pattern '{regex_pattern}': {e}")
+                                            print(
+                                                f"Regex error for pattern '{regex_pattern}': {e}"
+                                            )
                                             continue
             else:
                 for paragraph in doc.paragraphs:
@@ -163,7 +167,7 @@ class DocumentGeneratorService:
                         except re.error as e:
                             print(f"Regex error for pattern '{regex_pattern}': {e}")
                             continue
-                
+
                 for table in doc.tables:
                     for row in table.rows:
                         for cell in row.cells:
@@ -177,10 +181,14 @@ class DocumentGeneratorService:
                                                 replacement_value,
                                                 original_text,
                                             )
-                                            self._update_paragraph_text(paragraph, new_text)
+                                            self._update_paragraph_text(
+                                                paragraph, new_text
+                                            )
                                             replacements_count += 1
                                     except re.error as e:
-                                        print(f"Regex error for pattern '{regex_pattern}': {e}")
+                                        print(
+                                            f"Regex error for pattern '{regex_pattern}': {e}"
+                                        )
                                         continue
 
         return replacements_count

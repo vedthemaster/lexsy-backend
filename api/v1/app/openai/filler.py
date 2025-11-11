@@ -5,7 +5,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from config import config
-from repository import document_repo_ins
+from ...repository import document_repo_ins
 
 
 class OpenAIFiller:
