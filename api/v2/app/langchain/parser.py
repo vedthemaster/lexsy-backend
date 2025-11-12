@@ -8,7 +8,6 @@ from langchain_openai import ChatOpenAI
 from api.v2.app.langchain.tools import (
     PlaceholderDetectorTool,
     ContextAnalyzerTool,
-    PlaceholderClassifierTool,
 )
 from api.v2.models.models import PlaceHolder, PlaceholderAnalysis, PlaceholderType
 from config import config
@@ -23,7 +22,6 @@ class LangChainParser:
         )
         self.detector_tool = PlaceholderDetectorTool()
         self.context_analyzer_tool = ContextAnalyzerTool()
-        self.classifier_tool = PlaceholderClassifierTool()
 
     async def parse_document(self, file_path: str) -> tuple[List[PlaceHolder], str]:
         """Parse a document and extract placeholders with full analysis
@@ -50,15 +48,6 @@ class LangChainParser:
                 )
                 context_analysis = self.context_analyzer_tool._run(context_input)
 
-                classifier_input = json.dumps(
-                    {
-                        "placeholder": detection.text,
-                        "semantic_meaning": context_analysis.semantic_meaning,
-                        "context": f"{detection.context_before} ... {detection.context_after}",
-                    }
-                )
-                classification = self.classifier_tool._run(classifier_input)
-
                 cleaned_label = detection.text.strip("[]{}()<>_")
 
                 if not cleaned_label or cleaned_label.strip() == "":
@@ -74,7 +63,7 @@ class LangChainParser:
                     detection.text,
                     name,
                     context_analysis.semantic_meaning,
-                    classification.type,
+                    PlaceholderType.TEXT,
                 )
 
                 validation_rules = (
@@ -86,10 +75,8 @@ class LangChainParser:
                 analysis = PlaceholderAnalysis(
                     context_before=detection.context_before,
                     context_after=detection.context_after,
-                    inferred_type=classification.type,
-                    confidence_score=min(
-                        detection.confidence, classification.confidence
-                    ),
+                    inferred_type=PlaceholderType.TEXT,
+                    confidence_score=detection.confidence,
                     validation_rules=validation_rules,
                     suggested_value=None,
                     related_placeholders=[],

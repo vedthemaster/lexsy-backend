@@ -68,15 +68,11 @@ class ResponseGenerator:
         """Generate response when value accepted"""
 
         if not next_placeholder:
-            return f"✓ Perfect! I've recorded '{extraction_result.extracted_value}' for {current_placeholder.name}.\n\n🎉 That's everything! All placeholders are filled. You can now generate your completed document."
-
-        confirmation = f"✓ Got it: {extraction_result.extracted_value}"
+            return f"🎉 That's everything! All placeholders are filled. You can now generate your completed document."
 
         next_question = await self.generate_initial_question(next_placeholder)
 
-        progress_text = f"({progress['filled']}/{progress['total']} completed)"
-
-        return f"{confirmation}\n\n{next_question} {progress_text}"
+        return next_question
 
     async def _generate_clarification_request(
         self, placeholder: PlaceHolder, extraction_result: ExtractionResult

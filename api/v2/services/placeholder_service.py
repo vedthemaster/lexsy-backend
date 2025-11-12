@@ -36,7 +36,10 @@ class PlaceholderService:
 
         if not first_placeholder:
             return {
+                "success": True,
                 "session_id": session_id,
+                "conversation": [],
+                "all_filled": True,
                 "message": "All placeholders are already filled!",
                 "current_placeholder": None,
                 "completed": True,
@@ -45,7 +48,6 @@ class PlaceholderService:
         # Generate initial question using Response Generator
         initial_message = await self.filler.generate_initial_question(first_placeholder)
 
-        # Save initial message to conversation history
         conversation_msg = ConversationMessage(
             role="assistant",
             content=initial_message,
@@ -55,7 +57,13 @@ class PlaceholderService:
         await document_repo_ins.save(document)
 
         return {
+            "success": True,
             "session_id": session_id,
+            "conversation": [
+                {"role": msg.role, "content": msg.content, "timestamp": msg.timestamp}
+                for msg in document.conversation_history
+            ],
+            "all_filled": False,
             "message": initial_message,
             "current_placeholder": first_placeholder.model_dump(),
             "completed": False,
@@ -93,6 +101,17 @@ class PlaceholderService:
             await document_repo_ins.save(document)
 
             return {
+                "success": True,
+                "conversation": [
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                        "timestamp": msg.timestamp,
+                    }
+                    for msg in document.conversation_history
+                ],
+                "all_filled": True,
+                "message": completion_msg,
                 "response": completion_msg,
                 "current_placeholder": None,
                 "next_placeholder": None,
@@ -159,6 +178,17 @@ class PlaceholderService:
                 await document_repo_ins.save(document)
 
                 return {
+                    "success": True,
+                    "conversation": [
+                        {
+                            "role": msg.role,
+                            "content": msg.content,
+                            "timestamp": msg.timestamp,
+                        }
+                        for msg in document.conversation_history
+                    ],
+                    "all_filled": False,
+                    "message": response,
                     "response": response,
                     "current_placeholder": next_placeholder.model_dump(),
                     "next_placeholder": next_placeholder.model_dump(),
@@ -184,6 +214,17 @@ class PlaceholderService:
                 await document_repo_ins.save(document)
 
                 return {
+                    "success": True,
+                    "conversation": [
+                        {
+                            "role": msg.role,
+                            "content": msg.content,
+                            "timestamp": msg.timestamp,
+                        }
+                        for msg in document.conversation_history
+                    ],
+                    "all_filled": True,
+                    "message": completion_msg,
                     "response": completion_msg,
                     "current_placeholder": None,
                     "next_placeholder": None,
@@ -205,6 +246,13 @@ class PlaceholderService:
         await document_repo_ins.save(document)
 
         return {
+            "success": True,
+            "conversation": [
+                {"role": msg.role, "content": msg.content, "timestamp": msg.timestamp}
+                for msg in document.conversation_history
+            ],
+            "all_filled": False,
+            "message": result["response"],
             "response": result["response"],
             "current_placeholder": current_placeholder.model_dump(),
             "next_placeholder": None,
