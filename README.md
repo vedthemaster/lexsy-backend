@@ -92,5 +92,32 @@ python main.py
 http://localhost:8000/docs
 ```
 
+## Deployment
+
+### Deploy to Render
+
+The backend is ready to deploy to Render with zero configuration.
+
+**Quick Deploy:**
+1. Push code to GitHub
+2. Create new Web Service on Render
+3. Connect your repository
+4. Add environment variables (MongoDB, OpenAI)
+5. Deploy!
+
+**See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.**
+
+### Environment Variables
+
+Required for production:
+```bash
+MONGODB_URI=mongodb+srv://...
+MONGODB_NAME=lexy
+OPENAI_API_KEY=sk-proj-...
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_PARSER_ASSISTANT_ID=asst_...  # For V1 only
+OPENAI_FILLER_ASSISTANT_ID=asst_...  # For V1 only
+```
+
 
 

@@ -4,3 +4,4 @@ assets
 poc.py
 uploads
 config.yml
+.env
