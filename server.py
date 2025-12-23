@@ -29,3 +29,8 @@ def create_app() -> FastAPI:
     return app_
 
 app = create_app()
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to wake up the Railway service."""
+    return {"status": "healthy", "message": "Service is running"}
